@@ -1,0 +1,9 @@
+{
+  "name": "queue-ll-worker",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "private": true,
+  "dependencies": {
+    "amqplib": "^0.10.3"
+  }
+}

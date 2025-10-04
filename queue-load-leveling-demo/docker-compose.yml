@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: qlld-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672" # UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  producer:
+    build: ./producer
+    container_name: qlld-producer
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+      QUEUE_MAIN: jobs
+      QUEUE_DLQ: jobs.dlq
+    depends_on:
+      - rabbitmq
+    ports:
+      - "3000:3000"
+
+  worker:
+    build: ./worker
+    container_name: qlld-worker
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+      QUEUE_MAIN: jobs
+      QUEUE_DLQ: jobs.dlq
+      PROCESS_MS: "600"
+      MAX_RETRY: "5"
+      PREFETCH: "1"
+      FAILURE_RATE_PCT: "5" # giả lập 5% lỗi ngẫu nhiên
+    depends_on:
+      - rabbitmq
